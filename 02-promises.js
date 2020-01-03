@@ -1,3 +1,5 @@
+//PROMISES - A NEW WAY TO HANDLE ASYNC
+
 //Promises are handled slightly differently from normal javascript code by Node
 //NodeJs is single-threaded, meaning every line of code is processed by the same thread (as opposed to multi-threaded langauges such as C++, Java, or Go)
 //This is by design, and is helpful as it means that a thread of processing power is not wasted idling waiting for a network call. 
