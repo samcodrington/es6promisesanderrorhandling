@@ -215,7 +215,7 @@ TypeError: string.split is not a function
 let getLengthFromObject = (obj) => {
     let rand = Math.random() * 1000;
     return new Promise((resolve,reject) => {
-        setTimeout(() => { resolve(obj.arr[4].length)},rand);
+        setTimeout(() => { resolve(obj.arr[4].length)},rand); //this will throw an error if length doesn't exist
     });
 };
 
@@ -236,7 +236,7 @@ eventLoop = () => {
         } 
     }
     try {
-        //none of the catch blocks do anything
+        //none of the .catch blocks do anything
         getLengthFromObject(obj1).catch((e) => console.log('1 failed due with' + e.message));
         getLengthFromObject(obj2).catch((e) => console.log('2 failed due with' + e.message));
         getLengthFromObject(obj3).catch((e) => console.log('3 failed due with' + e.message));
