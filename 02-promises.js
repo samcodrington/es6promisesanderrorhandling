@@ -14,7 +14,7 @@ let promiseLand = () => {
 };
 //promiseLand();
 
-//promises can either be resolved or rejected using handlers passed to their constructor
+//promises can either be resolved or rejected using handler functions passed to their constructor
 promiseLand = () => {
     let p = new Promise((resolve, reject) => {
         //*reject* after a bit

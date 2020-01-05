@@ -212,7 +212,7 @@ TypeError: string.split is not a function
 
 //the call stack that is listed skips right to the error and doesn't tell us whether call A, B or C failed
 //See the following case where an error is thrown due to a string being passed to a function expecting an array
-let getLengthFromObject = (obj) => {
+let asyncGetLengthFromObject = (obj) => {
     let rand = Math.random() * 1000;
     return new Promise((resolve,reject) => {
         setTimeout(() => { resolve(obj.arr[4].length)},rand); //this will throw an error if length doesn't exist
@@ -237,9 +237,9 @@ eventLoop = () => {
     }
     try {
         //none of the .catch blocks do anything
-        getLengthFromObject(obj1).catch((e) => console.log('1 failed due with' + e.message));
-        getLengthFromObject(obj2).catch((e) => console.log('2 failed due with' + e.message));
-        getLengthFromObject(obj3).catch((e) => console.log('3 failed due with' + e.message));
+        asyncGetLengthFromObject(obj1).catch((e) => console.log('1 failed due with' + e.message));
+        asyncGetLengthFromObject(obj2).catch((e) => console.log('2 failed due with' + e.message));
+        asyncGetLengthFromObject(obj3).catch((e) => console.log('3 failed due with' + e.message));
     } catch(e) {
         //this won't help you either
         console.log('1, 2 or 3 failed with ' + e.message);
@@ -248,4 +248,25 @@ eventLoop = () => {
 }
 // eventLoop();
 //Which call failed??
-//It is in exactly these kind of unexpected errors that NodeJS's event loop doesn't help you!
+//It is in exactly these kind of unexpected errors that NodeJS's event loop doesn't help you.
+//Therefore it's a good practice that an asynchronous functions has all of it's code wrapped in a try/catch
+//Let's update our asyncGetLengthFromObject() function
+asyncGetLengthFromObject = (obj) => {
+    let rand = Math.random() * 1000;
+    return new Promise((resolve,reject) => {
+        setTimeout(
+            () => {
+                try {
+                    resolve(obj.arr[4].length) //this will throw an error if length doesn't exist
+                } catch(e) {
+                    reject(e); //This will catch and properly reject the error
+                }
+        },rand);
+    });
+};
+
+//Now any errors will be caught!
+eventLoop();
+
+//Now you might be thinking, isn't it annoying and needlessly wordy, having to catch and reject errors
+//Fortunately there is a cleaner way with async/await
