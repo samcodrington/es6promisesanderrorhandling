@@ -73,4 +73,4 @@ callbackHell = () => {
 
 callbackHell();
 
-//this sort of disorgnization makes maintenance and debugging difficult to do, and so to avoid this problem, promises were introduced in ES6 //TODO Check the version
+//this sort of disorgnization makes maintenance and debugging difficult to do, and so to avoid this problem, promises were introduced in ES6
