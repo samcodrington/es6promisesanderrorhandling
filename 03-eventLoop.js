@@ -48,10 +48,11 @@ eventLoop = () => {
 }
 // eventLoop();
 
-//It is worth noting that the error is not caught if you wrap the instantiation of the function in try/catch
+//It is worth noting that the error is even caught if you wrap the instantiation of the function in try/catch
 eventLoop = () => {
+    let funcA;
     try {
-        let funcA = () => {
+        funcA = () => {
             console.log('do stuff');
             funcB();
         }
@@ -69,7 +70,7 @@ eventLoop = () => {
     }
     
     
-    funcA(); //This will fail
+    funcA();
 }
 // eventLoop();
 
