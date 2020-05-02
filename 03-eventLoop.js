@@ -1,7 +1,7 @@
 //A BRIEF LOOK AT THE NODE EVENT LOOP 
-//Node, as I've noted previously, is a single threaded langauge.
+//Node, as I've noted previously, is a single threaded language.
 
-//Node executes all the lines of code it has available to it in order during the **TODO insert phase** of the event loop.
+//Node executes all the lines of synchronous code it has available to it in order during the 'poll' phase of the event loop.
 let eventLoop = () => {
     console.log('statement 1');
     console.log('statement 2');
@@ -10,7 +10,7 @@ let eventLoop = () => {
 // eventLoop();
 
 //Synchronously executed code, therefore, will have a (relatively) neat call stack. 
-//Look at the top lines of the error stack logged by this code, you can see the line (and column) of where the error was thrown!
+//Look at the top lines of the error stack logged by this code, you can see the line (and column) where the error was thrown!
 let errorFunc = () => {throw new Error('I have a call stack that makes sense!')};
 eventLoop = () => {
     console.log('Start event loop');
@@ -74,10 +74,10 @@ eventLoop = () => {
 }
 // eventLoop();
 
-//It is also practical to know that try/catch blocks will not catch a rejected promise.
+//It is also practical to know that try/catch blocks will not catch a rejected Promise.
 eventLoop = () => {
     try{
-        Promise.reject(); //Promise.reject() creates then immediately rejects a promise
+        Promise.reject(); //Promise.reject() creates then immediately rejects a Promise
     } catch(e){
         // We will never reach this code
         console.log('Handling error!');
@@ -86,7 +86,7 @@ eventLoop = () => {
 // eventLoop(); //this will fail with an UnhandledPromiseRejectionWarning
 
 //The UnhandledPromiseRejectionWarning log that NodeJs provides is a symptom which is very unhelpful at describing the source of the error (Not what you want during a production error).
-//Node can only tell you that a promise was rejected, not where it originated from.
+//Node can only tell you that a Promise was rejected, not where it originated from.
 //This is because //TODO why is this??
 
 //Try/Catch blocks will also do nothing to catch asynchronous code, as illustrated by setTimeout();
@@ -103,50 +103,54 @@ eventLoop = () => {
 }
 // eventLoop();
 
-//This is because SetTimeout (and more importantly, Promises handlers) are executed in a seperate *call stack* //TODO check that call stack is the right term
-//Basically when an asynchronous call is executed, it leaves a little note for the nodeJs engine that it has more code to run... eventually, and that the engine should execute any other available code in the meantime.
-//When the call is resolved the node engine will trigger a hook, indicating it will execute the code in that promise handler or callback function as soon as it's done executing available code.
+//This is because the asynchronous function (in this case, `asyncFuncThatThrowsError`)
+//completes before the setTimeout callback(and more importantly, Promise handlers) are executed.
+//This means that the try block is completed and proceeds with the next synchronous code before the
+//Promise warning occurs.
+//Basically when an asynchronous call is executed, it leaves a little note for the NodeJS engine that it has more code to run... eventually, and that the engine should execute any other available code in the meantime.
+//When the call is resolved the node engine will trigger a hook, indicating it will execute the code in that Promise handler or callback function as soon as it's done executing available code.
 
 let asyncFuncThatEventuallyResolves = () => {
     return new Promise((resolve) => {
         let startTime = new Date();
         setTimeout(() =>{
-            console.log('The promise is now resolved');
-            resolve(startTime); //this returns the value of the startTime to the promise
+            console.log('The Promise is now resolved');
+            resolve(startTime); //this returns the value of the startTime to the Promise
         }, 30);
     });
 }
 eventLoop = () => {
     console.log('Started!')
     let p = asyncFuncThatEventuallyResolves().then(() => {
-        console.log('the promise resolved and the .then block executed');
+        console.log('the Promise resolved and the .then block executed');
     });
     console.log('This will run in the meantime');
 }
 // eventLoop();
 
 
-//As an aside this hook is only run one NodeJs runs out of synchronous code it is expected to execute, see what happens with the while loop is being executed
+//As an aside, this hook is only run once NodeJs runs out of synchronous code it is expected to execute
+//See what happens below during the time that the while loop is running:
 eventLoop = () => {
     let i = 0;
-    var exitCondition = false;
+    let exitCondition = false;
     console.log('Promise started')
     let p = asyncFuncThatEventuallyResolves().then((startTime) => {
         console.log('The .then block is executed!')
         exitCondition = true;
-        console.log(`Took ${new Date() - startTime}ms for the promise to resolve, because the while loop was keeping the engine busy`);
+        console.log(`Took ${new Date() - startTime}ms for the Promise to resolve, because the while loop was keeping the engine busy`);
     });
-    console.log('This code will run while the promise is still pending: ' + p);
+    console.log('This code will run while the Promise is still pending: ' + p);
     while(exitCondition == false && i < 50000000) {
         i++;
     }
     console.log(`The while loop counted to ${i}!`);
     console.log(p); //Promise { <pending> }
-    console.log('Now that the engine has run out of code, the promise will now resolve');
+    console.log('Now that the engine has run out of code, the Promise will now resolve');
 }
 // eventLoop();
 
-//Because asynchronous code is executed on a different call stack then where it is called this can lead to a very unhelpful stack trace 
+//Because asynchronous code is executed in a different call stack than where it is called this can lead to a very unhelpful stack trace 
 let asyncFuncThatRejectsAfterRandomAmountOfTime = () => {
     return new Promise((resolve,reject) => {
         let randTime = Math.random()*1000;
@@ -211,7 +215,7 @@ TypeError: string.split is not a function
     at processTimers (internal/timers.js:475:7)
 */
 
-//the call stack that is listed skips right to the error and doesn't tell us whether call A, B or C failed
+//The call stack that is listed skips right to the error and doesn't tell us whether call A, B or C failed
 //See the following case where an error is thrown due to a string being passed to a function expecting an array
 let asyncGetLengthFromObject = (obj) => {
     let rand = Math.random() * 1000;
@@ -249,8 +253,8 @@ eventLoop = () => {
 }
 // eventLoop();
 //Which call failed??
-//It is in exactly these kind of unexpected errors that NodeJS's event loop doesn't help you.
-//Therefore it's a good practice that an asynchronous functions has all of it's code wrapped in a try/catch
+//It is exactly these kind of unexpected errors that NodeJS's event loop doesn't help you with.
+//Therefore it's a good practice to wrap all of an asynchronous function's code in a try/catch
 //Let's update our asyncGetLengthFromObject() function
 asyncGetLengthFromObject = (obj) => {
     let rand = Math.random() * 1000;
@@ -267,7 +271,7 @@ asyncGetLengthFromObject = (obj) => {
 };
 
 //Now any errors will be caught!
-eventLoop();
+// eventLoop();
 
-//Now you might be thinking, isn't it annoying and needlessly wordy, having to catch and reject errors
+//Now you might be thinking, "isn't it annoying and needlessly wordy, having to catch and reject errors?"
 //Fortunately there is a cleaner way with async/await

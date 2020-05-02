@@ -1,5 +1,5 @@
 //THE LAND BEFORE PROMISES - CALLBACKS
-//Before promises, callbacks passed as function parameters were a way for asynchronous operations to indicate their completion.
+//Before Promises, callbacks passed as function parameters were a way for asynchronous operations to indicate their completion.
 let asyncFunc = (serviceName, cb) => {
     let latency = Math.random() * 1000;
     console.log(`${serviceName} begun`);
@@ -70,7 +70,6 @@ callbackHell = () => {
     });
     console.log('This code will run before despite being written at the end!');
 }
+//callbackHell();
 
-callbackHell();
-
-//this sort of disorgnization makes maintenance and debugging difficult to do, and so to avoid this problem, promises were introduced in ES6
+//this sort of disorgnization makes maintenance and debugging difficult to do, and so to avoid this problem, Promises were introduced in ES6
